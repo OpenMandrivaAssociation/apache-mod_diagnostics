@@ -3,7 +3,7 @@
 %define mod_conf 94_%{mod_name}.conf
 %define mod_so %{mod_name}.so
 
-Summary:	Mod_diagnostics is a DSO module for the apache web server
+Summary:	DSO module for the apache web server
 Name:		apache-%{mod_name}
 Version:	0.1
 Release:	%mkrel 7
