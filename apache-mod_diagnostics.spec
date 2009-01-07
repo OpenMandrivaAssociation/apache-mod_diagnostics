@@ -6,13 +6,14 @@
 Summary:	DSO module for the apache web server
 Name:		apache-%{mod_name}
 Version:	0.1
-Release:	%mkrel 11
+Release:	%mkrel 12
 Group:		System/Servers
 License:	Apache License
 URL:		http://apache.webthing.com/mod_diagnostics/
 Source0:	http://apache.webthing.com/svn/apache/filters/mod_diagnostics.c
 Source1:	http://apache.webthing.com/mod_diagnostics/index.html
 Source2:	%{mod_conf}
+Patch0:		mod_diagnostics-0.1-format_not_a_string_literal_and_no_format_arguments.diff
 Requires(pre): rpm-helper
 Requires(postun): rpm-helper
 Requires(pre):	apache-conf >= 2.2.0
@@ -36,6 +37,8 @@ debugging tool for Apache filter modules.
 cp %{SOURCE0} .
 cp %{SOURCE1} .
 cp %{SOURCE2} %{mod_conf}
+
+%patch0 -p0
 
 # strip away annoying ^M
 find . -type f|xargs file|grep 'CRLF'|cut -d: -f1|xargs perl -p -i -e 's/\r//'
