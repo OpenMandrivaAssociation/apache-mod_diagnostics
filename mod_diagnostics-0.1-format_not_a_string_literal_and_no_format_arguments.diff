@@ -1,0 +1,11 @@
+--- mod_diagnostics.c	2009-01-07 16:01:59.000000000 +0100
++++ mod_diagnostics.c.oden	2009-01-07 16:03:25.000000000 +0100
+@@ -41,7 +41,7 @@ static void diagnostic_log(ap_filter_t* 
+ }
+ static int diagnostic_ofilter (ap_filter_t* f, apr_bucket_brigade* bb) {
+   apr_bucket* b ;
+-  ap_log_perror(APLOG_MARK, APLOG_NOTICE, 0, f->c->pool, f->frec->name) ;
++  ap_log_perror(APLOG_MARK, APLOG_NOTICE, 0, f->c->pool, "%s", f->frec->name) ;
+ 
+   for (	b = APR_BRIGADE_FIRST(bb) ;
+ 	b != APR_BRIGADE_SENTINEL(bb) ;
