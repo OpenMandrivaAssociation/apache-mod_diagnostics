@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html lang="en"><head>
+<title>mod_diagnostics</title>
+<style type="text/css">
+@import url(/index.css) ;
+</style>
+</head><body>
+<h1>mod_diagnostics</h1>
+<p><strong>mod_diagnostics</strong> is a debugging and diagnostic
+tool for application developers - particularly filter modules.
+It can be inserted anywhere in the Apache filter chain, and logs
+traffic (buckets and brigades) passing through.  It is a purely
+passive watcher, and will never touch the traffic passing through.
+</p>
+<h2>Examples</h2>
+<p>Probably the best way to explain mod_diagnistics is by example.</p>
+<h3>Strange delays in some browsers</h3>
+<p>In an update to <strong>mod_xml</strong>, a new bug was introduced.
+It was not immediately obvious, but in some browsers the request would
+hang and then timeout.  The effect was only observed when using the
+XSLT output filter with Xalan-C, and only happened with HTTP/1.1
+browser, not with HTTP/1.0.  Furthermore, hitting "cancel" before
+the timeout in an HTTP/1.1 browser would cause the page to display!</p>
+<p>Inserting mod_diagnostics before and after the offending filter,
+the bug was immediately obvious.  The module was simply failing to
+pass an EOS bucket down the chain.  A trivial fix!</p>
+<h3>Obscure bug in a third-party library</h3>
+<p>A user of <strong>mod_proxy_html</strong> reported serious performance
+problems when parsing an 8Mb HTML file.  He had profiled the problem,
+and found the entire processing time was in the final call to
+<tt>htmlParseChunk</tt> in libxml2.</p>
+<p>I investigated this by inserting <strong>mod_diagnostics</strong>
+before <em>and</em> after mod_proxy_html, and running it with the
+largest HTML document I had available (the MySQL manual, about 2.6Mb).
+I was able to confirm that nothing was passed down the chain until the
+final call, so not only was it slow, but it had also broken Apache
+pipelining.</p>
+<p>To refine the diagnosis, I added a flush in each call to the
+filter in mod_proxy_html.  Now mod_diagnostics showed a small amount
+of data (under 1Kb) coming through in the first call to the filter,
+but nothing else until the end.  Further investigation showed that
+the data stopped coming when the first HTML comment was encountered
+in the source.</p>
+<p>At this point I ran it under gdb, looking for the comment handling.
+I found that it was failing to find the end of the comment.  The problem
+was resolved only in the last call to htmlParseChunk, which didn't go
+through the buggy code.  I disabled the buggy code, and found it was
+now working correctly, with approximately the same amount of input
+and output data in each call to the mod_proxy_html filter - so
+pipelining was now fixed.  My correspondent reported total processing
+Time for his 8Mb file reduced from 30 minutes to 9 seconds
+(on five-year-old hardware).</p>
+<p>The bug was reported to the libxml team, who have now fixed it.</p>
+<h2>Availability</h2>
+<p><a href="mod_diagnostics.c">mod_diagnostics.c</a> is available under
+the same terms as the Apache server itself.</p>
+<div id="navbar"><a class="internal" href="./" title="Up">Up</a>
+*
+<a class="internal" href="/" title="WebThing Apache Centre">Home</a>
+*
+<a class="internal" href="/contact.html" title="Contact WebThing">Contact</a>
+*
+<a class="external" href="http://www.webthing.com/" title="WebThing Ltd">Web&#222;ing</a>
+*
+<a class="external" href="http://www.apache.org/" title="Apache Software Foundation">Apache</a></div></body></html>
