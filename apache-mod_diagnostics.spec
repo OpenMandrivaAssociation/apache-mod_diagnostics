@@ -9,7 +9,7 @@ Version:	0.1
 Release:	19
 Group:		System/Servers
 License:	Apache License
-URL:		http://apache.webthing.com/mod_diagnostics/
+URL:		https://apache.webthing.com/mod_diagnostics/
 Source0:	http://apache.webthing.com/svn/apache/filters/mod_diagnostics.c
 Source1:	http://apache.webthing.com/mod_diagnostics/index.html
 Source2:	%{mod_conf}
